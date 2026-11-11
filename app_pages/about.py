@@ -17,6 +17,10 @@ data science project.
 [Netflix Movies and TV Shows](https://www.kaggle.com/datasets/shivamb/netflix-shows) by Shivam Bansal
 (Kaggle). 12 columns: `show_id, type, title, director, cast, country, date_added,
 release_year, rating, duration, listed_in, description`.
+
+**Poster thumbnails:** lead images of the matching English Wikipedia articles (looked up once with
+the MediaWiki API and verified against title, release year and type). Images belong to their
+respective rights holders and are shown for educational, non-commercial purposes.
 """)
 
 st.markdown("#### 🏗️ System architecture")

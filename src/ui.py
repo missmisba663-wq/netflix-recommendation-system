@@ -122,6 +122,10 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 .nf-card:hover { transform: translateY(-3px) scale(1.02); border-color:#E50914; }
 .nf-poster { position: relative; aspect-ratio: 2/3; display:flex; align-items:flex-end;
              padding: 12px; background-size: cover; background-position: center; }
+.nf-img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.nf-poster .shade.light { background: linear-gradient(180deg, rgba(0,0,0,.35), transparent 25%); }
+.nf-name { padding: 9px 11px 0; color:#fff; font-weight:700; font-size:.86rem; white-space:nowrap;
+           overflow:hidden; text-overflow:ellipsis; }
 .nf-poster .shade { position:absolute; inset:0; background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,.92)); }
 .nf-poster .t { position:relative; font-family:'Bebas Neue',sans-serif; font-size:1.55rem; line-height:1.02;
                 color:#fff; letter-spacing:.02em; text-shadow:0 2px 8px rgba(0,0,0,.6); word-break: break-word; }
@@ -179,13 +183,32 @@ def fmt_duration(row) -> str:
     return ""
 
 
+@st.cache_data(show_spinner=False)
+def _posters_cached(mtime: float) -> dict[str, str]:
+    from .posters import load_posters
+    return load_posters()
+
+
+def get_posters() -> dict[str, str]:
+    from .posters import POSTERS_CSV
+    # cache key = file modification time, so a rebuilt posters.csv is picked up automatically
+    return _posters_cached(POSTERS_CSV.stat().st_mtime if POSTERS_CSV.exists() else 0.0)
+
+
+def thumbnail(row) -> str | None:
+    """Wikipedia poster (pre-computed), else TMDB if a key is configured."""
+    url = get_posters().get(row["show_id"]) or poster_url(
+        str(row["title"]), int(row["release_year"]), row["type"])
+    return url.replace("'", "%27").replace('"', "%22") if url else None
+
+
 def card_html(row, rank: int | None = None, show_score: bool = True) -> str:
     title = html.escape(str(row["title"]))
-    img = poster_url(str(row["title"]), int(row["release_year"]), row["type"])
+    img = thumbnail(row)
     h = _hue(str(row["title"]))
-    bg = (f"background-image:url('{img}')" if img else
-          f"background: radial-gradient(circle at 30% 20%, hsl({h},70%,32%), transparent 60%),"
+    bg = (f"background: radial-gradient(circle at 30% 20%, hsl({h},70%,32%), transparent 60%),"
           f" linear-gradient(160deg, hsl({(h + 40) % 360},55%,18%), #050505)")
+    img_tag = f'<img class="nf-img" src="{img}" alt="" loading="lazy">' if img else ""
     match = ""
     if show_score and "score" in row and pd.notna(row["score"]):
         match = f'<div class="nf-match">{round(float(row["score"]) * 100)}% match</div>'
@@ -195,9 +218,10 @@ def card_html(row, rank: int | None = None, show_score: bool = True) -> str:
     return f"""
     <div class="nf-card">
       <div class="nf-poster" style="{bg}">
-        <div class="shade"></div>{num}<span class="nf-badge">{badge}</span>
+        {img_tag}<div class="shade{' light' if img else ''}"></div>{num}<span class="nf-badge">{badge}</span>
         <div class="t">{title if not img else ''}</div>
       </div>
+      {f'<div class="nf-name">{title}</div>' if img else ''}
       <div class="nf-meta">{match}{int(row['release_year'])} · {html.escape(str(row['rating']))} · {fmt_duration(row)}</div>
       <div class="nf-genres">{genres}</div>
     </div>"""

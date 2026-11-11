@@ -8,3 +8,6 @@ data/processed/pipeline_log.txt
 .pytest_cache/
 .ipynb_checkpoints/
 *.pbix.bak
+data/processed/posters_sample.csv
+data/processed/posters_raw.json
+data/processed/posters_log.txt

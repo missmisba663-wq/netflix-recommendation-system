@@ -96,5 +96,11 @@ often and with **4×** the plot similarity of the genre-only baseline.
 See [`powerbi/POWERBI_GUIDE.md`](powerbi/POWERBI_GUIDE.md) for the step-by-step build, and
 [`powerbi/DAX_Measures.md`](powerbi/DAX_Measures.md) for all measures.
 
+## 🖼️ Poster thumbnails
+`python -m src.posters` looks up each title's English Wikipedia article in batches of 50 (MediaWiki API,
+no key needed) and keeps the lead image only when the article name, release year and type match;
+everything else falls back to a styled title tile. Results are saved to `data/processed/posters.csv`,
+so the live app never calls Wikipedia at runtime. Optionally set `TMDB_API_KEY` to fill gaps from TMDB.
+
 ## 📜 Dataset licence
 Netflix Movies and TV Shows by Shivam Bansal, Kaggle. See the dataset page for licence terms.

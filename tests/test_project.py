@@ -86,3 +86,12 @@ def test_classifier(rec):
     assert r.audience_accuracy > r.audience_baseline
     p = clf.predict("Funny Bones", "The comedian riffs on dating and family in this hilarious stand-up special.")
     assert p["genres"].iloc[0]["Genre"] == "Stand-Up Comedy"
+
+
+def test_poster_matching_rules():
+    from src.posters import _candidates, _desc_ok, _norm
+    assert _norm("Narcos: Mexico (2018 TV series)") == _norm("Narcos: Mexico")
+    assert _candidates("Mute", 2018, "Movie")[0][0] == "Mute (2018 film)"
+    assert _desc_ok("2018 film by Duncan Jones", 2018, "Movie")
+    assert not _desc_ok("1999 film by Dennis Dugan", 2018, "Movie")   # same name, wrong year
+    assert not _desc_ok("Disambiguation page", 2018, "Movie")
