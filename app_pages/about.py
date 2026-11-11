@@ -30,13 +30,14 @@ digraph G {
   prep [label="Data cleaning &\\nfeature engineering\\n(pandas)"];
   model [label="Hybrid TF-IDF\\nrecommender\\n(scikit-learn)"];
   clus [label="LSA + K-Means\\n+ t-SNE"];
+  clf [label="Supervised NLP\\ngenre / type / audience"];
   eval [label="Offline evaluation\\nvs baselines"];
   st [label="Streamlit web app\\n(frontend + UI)"];
   api [label="FastAPI REST API"];
   db [label="SQLite\\nwatchlist & likes"];
   pbi [label="Power BI\\nstar schema"];
   kaggle -> prep -> model; model -> clus; model -> eval;
-  model -> st; model -> api; st -> db; prep -> pbi; clus -> pbi;
+  model -> st; model -> api; st -> db; prep -> pbi; clus -> pbi; prep -> clf; clf -> st; clf -> pbi;
 }
 """)
 
@@ -44,7 +45,7 @@ st.markdown("""
 #### 🧰 Tech stack
 | Layer | Technology |
 |---|---|
-| Data & ML | Python, pandas, NumPy, SciPy, scikit-learn (TF-IDF, cosine, TruncatedSVD, K-Means, t-SNE) |
+| Data & ML | Python, pandas, NumPy, SciPy, scikit-learn (TF-IDF, cosine, TruncatedSVD, K-Means, t-SNE, One-vs-Rest Logistic Regression, MMR, Rocchio) |
 | Frontend | Streamlit (multi-page), custom CSS, Plotly |
 | Backend | FastAPI REST API, SQLite persistence |
 | BI | Power BI Desktop (star schema, DAX measures, custom Netflix theme) |

@@ -9,7 +9,9 @@ An end-to-end **machine learning + full-stack + business intelligence** project 
 | Component | What it does |
 |---|---|
 | 🧠 **ML engine** | Hybrid content-based recommender (multi-field TF-IDF + weighted cosine), Rocchio taste profiles, MMR diversity re-ranking, natural-language search, K-Means clustering + t-SNE map, offline evaluation vs baselines |
-| 🌐 **Website** | 7-page Streamlit web app with a Netflix-style UI, title cards, detail pop-ups, explanations ("why recommended"), live analytics, user profiles and a persistent watchlist |
+| 🔮 **Supervised NLP** | AI Genre Predictor: multi-label genre tagger (One-vs-Rest Logistic Regression with per-genre thresholds tuned on a validation split), Movie-vs-TV and audience classifiers, word-level explanations, test-set F1 / accuracy / confusion matrices |
+| 🎭 **Discovery** | Mood-based recommendations (10 moods) and an interactive 2-hop recommendation network graph |
+| 🌐 **Website** | 8-page Streamlit web app with a Netflix-style UI, title cards, detail pop-ups, explanations ("why recommended"), live analytics, user profiles and a persistent watchlist |
 | ⚙️ **Backend** | FastAPI REST API (`/recommend`, `/search`, `/titles`, `/stats`, watchlist CRUD) and SQLite database |
 | 📊 **Power BI** | Star-schema data model, Netflix dark theme, 25+ DAX measures, 4-page report guide, embeddable in the website |
 | ✅ **Testing** | pytest unit + API tests |
@@ -19,11 +21,13 @@ An end-to-end **machine learning + full-stack + business intelligence** project 
 ## 📁 Project structure
 ```
 ├── streamlit_app.py          # Website entry point (multi-page navigation)
-├── app_pages/                # Home, Recommend, Browse, My List, Analytics, Model Insights, About
+├── app_pages/                # Home, Recommend, Genre Predictor, Browse, My List, Analytics, Model Insights, About
 ├── src/
 │   ├── data_prep.py          # cleaning & feature engineering
 │   ├── recommender.py        # ML recommendation engine
 │   ├── clustering.py         # LSA + K-Means + t-SNE
+│   ├── classifier.py         # supervised NLP: genre / type / audience models
+│   ├── moods.py              # mood discovery + recommendation network graph
 │   ├── evaluate.py           # offline evaluation vs baselines
 │   ├── pipeline.py           # end-to-end pipeline + Power BI export
 │   ├── db.py                 # SQLite watchlist / feedback
@@ -58,7 +62,16 @@ title vectors is a **weighted sum of per-feature cosine similarities**:
 - **Diversity:** Maximal Marginal Relevance re-ranking.
 - **Clustering:** TruncatedSVD (100-d LSA) → K-Means (k = 12) → t-SNE 2-D map.
 
-### Evaluation (400 random queries, top-10)
+### Supervised classifiers (held-out test set, 1,321 titles)
+| Task | Model | Baseline |
+|---|---|---|
+| Genre tagging, micro-F1 (36 genres) | **46.9%** | 27.7% (always top-2 genres) |
+| Movie vs TV Show, accuracy | **75.8%** | 69.6% (majority class) |
+| Audience (4 classes), accuracy | **53.1%** | 44.2% (majority class) |
+
+Input is only the title + a one-sentence synopsis; genres defined by origin (Korean, British) are the hardest.
+
+### Recommender evaluation (400 random queries, top-10)
 | Method | Genre Precision | People Hit | Plot Similarity | Diversity |
 |---|---|---|---|---|
 | Random | 24.6% | 0.1% | 0.4% | 99.6% |

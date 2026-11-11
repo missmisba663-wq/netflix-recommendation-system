@@ -15,6 +15,7 @@ pages = {
     "Discover": [
         st.Page("app_pages/home.py", title="Home", icon="🏠", default=True),
         st.Page("app_pages/recommend.py", title="Get Recommendations", icon="✨"),
+        st.Page("app_pages/predictor.py", title="AI Genre Predictor", icon="🔮"),
         st.Page("app_pages/browse.py", title="Browse Catalogue", icon="🔍"),
         st.Page("app_pages/watchlist.py", title="My List", icon="❤️"),
     ],

@@ -14,6 +14,7 @@ import time
 
 import pandas as pd
 
+from .classifier import ContentClassifier
 from .clustering import cluster_titles
 from .config import CLEAN_CSV, CLUSTER_CSV, EVAL_CSV, POWERBI_DIR, PROCESSED_DIR
 from .data_prep import download_raw, load_clean, split_list
@@ -49,6 +50,7 @@ def export_powerbi(df: pd.DataFrame, clusters: pd.DataFrame, evaluation: pd.Data
 def run(n_eval_queries: int = 400) -> None:
     t0 = time.perf_counter()
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    POWERBI_DIR.mkdir(parents=True, exist_ok=True)
     print("1/5 Downloading Kaggle dataset (if missing)...")
     download_raw()
     print("2/5 Cleaning & feature engineering...")
@@ -65,6 +67,12 @@ def run(n_eval_queries: int = 400) -> None:
     print("5/5 Evaluating vs baselines...")
     ev = evaluate(rec, n_queries=n_eval_queries)
     print(ev.round(3).to_string(index=False))
+
+    print("+   Training supervised NLP classifiers...")
+    clf = ContentClassifier().fit(df)
+    print(clf.report.summary().round(3).to_string(index=False))
+    clf.report.summary().to_csv(POWERBI_DIR / "Classifier_Metrics.csv", index=False)
+    clf.report.per_genre.to_csv(POWERBI_DIR / "Genre_Classifier.csv", index=False)
 
     df.to_csv(CLEAN_CSV, index=False)
     summary.to_csv(CLUSTER_CSV, index=False)

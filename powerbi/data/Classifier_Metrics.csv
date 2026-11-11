@@ -1,0 +1,6 @@
+Task,Metric,Model,Baseline
+Genre tagging (multi-label),Micro-F1,0.46936656282450673,0.27687829725304713
+Genre tagging (multi-label),Macro-F1,0.3898122262088974,
+Movie vs TV Show,Accuracy,0.7577592732778198,0.6964420893262679
+Audience (4 classes),Accuracy,0.5307219662058372,0.4423963133640553
+Audience (4 classes),Macro-F1,0.5147646152666838,

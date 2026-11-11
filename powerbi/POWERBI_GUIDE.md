@@ -12,6 +12,8 @@ You need **Power BI Desktop** (free, Microsoft Store) on Windows.
 | `Title_Directors.csv` | title × director | bridge |
 | `Clusters.csv` | 1 row per K-Means cluster | ML output |
 | `Model_Evaluation.csv` | 1 row per method | ML evaluation |
+| `Classifier_Metrics.csv` | 1 row per task/metric | supervised NLP results vs baselines |
+| `Genre_Classifier.csv` | 1 row per genre | per-genre precision / recall / F1 |
 
 ---
 
@@ -83,6 +85,8 @@ You need **Power BI Desktop** (free, Microsoft Store) on Windows.
 - **Clustered bar**: `Model_Evaluation[Method]` vs `Genre Precision@10`, `People Hit@10`,
   `Plot Similarity@10` → *Hybrid model vs baselines*.
 - **Cards**: `[Hybrid Genre Precision]`, `[Hybrid People Hit]`.
+- **Clustered bar**: `Classifier_Metrics[Task]` vs `Model` and `Baseline` → *supervised models vs baselines*.
+- **Bar**: `Genre_Classifier[Genre]` vs `F1` (sorted) → *which genres are predictable from the synopsis*.
 
 ### Finishing touches
 - **Format → Edit interactions** so slicers filter all visuals.

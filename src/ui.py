@@ -34,6 +34,12 @@ def get_recommender():
     return build_recommender(get_titles())
 
 
+@st.cache_resource(show_spinner="Training NLP classifiers...")
+def get_classifier():
+    from .classifier import ContentClassifier
+    return ContentClassifier().fit(get_titles())
+
+
 @st.cache_data
 def get_evaluation() -> pd.DataFrame | None:
     return pd.read_csv(EVAL_CSV) if EVAL_CSV.exists() else None

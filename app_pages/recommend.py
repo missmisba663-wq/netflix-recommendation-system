@@ -1,19 +1,21 @@
-import pandas as pd
+import numpy as np
 import plotly.express as px
+import plotly.graph_objects as go
 import streamlit as st
 
 from src import db
 from src.config import FEATURE_WEIGHTS
+from src.moods import MOODS, mood_recommend, neighbour_graph
 from src.recommender import Filters
-from src.ui import get_recommender, get_titles, render_grid, title_picker
+from src.ui import RED, get_recommender, get_titles, render_grid, title_picker
 
 df = get_titles()
 rec = get_recommender()
 user = st.session_state.user
 
 st.title("✨ Get Recommendations")
-st.caption("Three ways to discover: item-to-item similarity, a multi-title taste profile, "
-           "or a free-text description.")
+st.caption("Four ways to discover: item-to-item similarity (with a 2-hop network graph), a "
+           "multi-title taste profile, a free-text description, or your current mood.")
 
 # ------------------------------------------------------------- sidebar
 with st.sidebar:
@@ -32,7 +34,52 @@ with st.sidebar:
 filters = Filters(content_type=None if ctype == "Any" else ctype, min_year=years[0],
                   max_year=years[1], genres=genres, maturity=maturity)
 
-tab1, tab2, tab3 = st.tabs(["🎬 Similar to a title", "🧬 My taste profile", "💬 Describe it"])
+
+
+def draw_network(show_id: str) -> None:
+    """Radial 2-hop similarity graph: centre = chosen title, ring 1 = its top matches,
+    ring 2 = their own top matches. Lines = similarity links."""
+    nodes, edges = neighbour_graph(rec, show_id)
+    pos = {show_id: (0.0, 0.0)}
+    ring1 = nodes[nodes["level"] == 1]["show_id"].tolist()
+    angle = {}
+    for i, s in enumerate(ring1):
+        a = 2 * np.pi * i / max(len(ring1), 1)
+        angle[s] = a
+        pos[s] = (np.cos(a), np.sin(a))
+    for parent, grp in nodes[nodes["level"] == 2].groupby("parent"):
+        kids = grp["show_id"].tolist()
+        for j, s in enumerate(kids):
+            a = angle[parent] + (j - (len(kids) - 1) / 2) * 0.22
+            pos[s] = (2.1 * np.cos(a), 2.1 * np.sin(a))
+    ex, ey = [], []
+    for a, b, _ in edges:
+        ex += [pos[a][0], pos[b][0], None]
+        ey += [pos[a][1], pos[b][1], None]
+    fig = go.Figure(go.Scatter(x=ex, y=ey, mode="lines", hoverinfo="skip",
+                               line=dict(color="#3a3a3a", width=1), showlegend=False))
+    styles = {0: ("Selected title", RED, 26), 1: ("Direct matches", "#3987e5", 16),
+              2: ("2nd-hop matches", "#a3a3a3", 10)}
+    for lvl, (name, color, size) in styles.items():
+        sub = nodes[nodes["level"] == lvl]
+        fig.add_trace(go.Scatter(
+            x=[pos[s][0] for s in sub["show_id"]], y=[pos[s][1] for s in sub["show_id"]],
+            mode="markers+text" if lvl < 2 else "markers", name=name,
+            text=sub["title"].str.slice(0, 22), textposition="top center",
+            textfont=dict(size=11 if lvl else 14, color="#f5f5f5"),
+            marker=dict(size=size, color=color, line=dict(color="#141414", width=2)),
+            customdata=np.stack([sub["type"], sub["release_year"], sub["score"]], axis=1),
+            hovertemplate="<b>%{text}</b><br>%{customdata[0]} · %{customdata[1]}"
+                          "<br>similarity %{customdata[2]:.0%}<extra></extra>"))
+    fig.update_layout(height=620, xaxis_visible=False, yaxis_visible=False,
+                      yaxis_scaleanchor="x", margin=dict(l=0, r=0, t=40, b=0))
+    st.plotly_chart(fig, width="stretch")
+    st.caption(f"{len(nodes)} titles, {len(edges)} similarity links. Clusters of tightly linked titles "
+               "show 'neighbourhoods' of taste; cross-links reveal titles that bridge them.")
+
+
+tab1, tab2, tab3, tab4 = st.tabs(["🎬 Similar to a title", "🧬 My taste profile", "💬 Describe it",
+                                  "🎭 Mood"])
 
 # ----------------------------------------------------------- item-to-item
 with tab1:
@@ -70,6 +117,8 @@ with tab1:
                 st.plotly_chart(fig, width="stretch")
                 st.caption("score = Σ wᶠ · cos(titleᶠ, candidateᶠ) over description, genres, cast, "
                            "director, country and meta features.")
+            with st.expander("🕸️ Recommendation network: explore 2 hops of similar titles"):
+                draw_network(sid)
 
 # ----------------------------------------------------------- taste profile
 with tab2:
@@ -104,3 +153,15 @@ with tab3:
             st.warning("Nothing matched - try other keywords or relax filters.")
         else:
             render_grid(out, key="txt", cols=6, ranked=True)
+
+# ----------------------------------------------------------- mood
+with tab4:
+    st.markdown("How are you feeling tonight? Each mood combines a keyword profile with genre "
+                "affinity: *0.55 · keyword relevance + 0.45 · genre fit*.")
+    mood = st.pills("Mood", list(MOODS), default=list(MOODS)[0], label_visibility="collapsed")
+    if mood:
+        out = mood_recommend(rec, mood, k=k, filters=filters, diversity=max(diversity, 0.3))
+        if out.empty:
+            st.warning("No titles match your filters.")
+        else:
+            render_grid(out, key="mood", cols=6, ranked=True, show_score=False)

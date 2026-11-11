@@ -65,3 +65,24 @@ def test_api(tmp_path, monkeypatch):
     assert c.post("/recommend/profile", json={"liked": [hit["show_id"]], "k": 3}).status_code == 200
     assert c.post("/users/ann/watchlist", json={"show_id": hit["show_id"]}).status_code == 201
     assert c.get("/users/ann/watchlist").json()["show_ids"] == [hit["show_id"]]
+
+
+def test_moods_and_graph(rec):
+    from src.moods import MOODS, mood_recommend, neighbour_graph
+    out = mood_recommend(rec, "👻 Scary", k=10)
+    assert len(out) == 10
+    assert out["genres"].str.contains("Horror").mean() >= 0.7
+    nodes, edges = neighbour_graph(rec, sid(rec, "Narcos"))
+    assert nodes["show_id"].is_unique and len(edges) >= len(nodes) - 1
+    assert len(MOODS) >= 8
+
+
+def test_classifier(rec):
+    from src.classifier import ContentClassifier
+    clf = ContentClassifier().fit(rec.df)
+    r = clf.report
+    assert r.genre_micro_f1 > r.genre_baseline_micro_f1 + 0.1
+    assert r.type_accuracy > r.type_baseline
+    assert r.audience_accuracy > r.audience_baseline
+    p = clf.predict("Funny Bones", "The comedian riffs on dating and family in this hilarious stand-up special.")
+    assert p["genres"].iloc[0]["Genre"] == "Stand-Up Comedy"
