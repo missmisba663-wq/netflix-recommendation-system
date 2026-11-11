@@ -82,9 +82,9 @@ def plotly_theme() -> None:
         xaxis=dict(gridcolor=GRID, zerolinecolor=GRID, linecolor=GRID),
         yaxis=dict(gridcolor=GRID, zerolinecolor=GRID, linecolor=GRID),
         hoverlabel=dict(bgcolor="#1f1f1f", bordercolor="#444", font_color=INK),
-        margin=dict(l=10, r=10, t=40, b=10),
+        margin=dict(l=10, r=10, t=56, b=10),
         bargap=0.25,
-        legend=dict(orientation="h", y=1.08, x=0, font_color=MUTED),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font_color=MUTED),
     )
     pio.templates["netflix"] = tmpl
     pio.templates.default = "netflix"
@@ -123,7 +123,8 @@ h1, h2, h3 { letter-spacing: -0.01em; }
                 font-size:1.4rem; letter-spacing:.05em; }
 .nf-badge { position:absolute; top:10px; right:10px; background:rgba(0,0,0,.7); color:#fff; font-size:.65rem;
             font-weight:700; padding:3px 7px; border-radius:4px; letter-spacing:.08em; border:1px solid #444; }
-.nf-meta { padding: 9px 11px 4px; color:#d4d4d4; font-size:.78rem; }
+.nf-meta { padding: 9px 11px 4px; color:#d4d4d4; font-size:.78rem; white-space:nowrap; overflow:hidden;
+           text-overflow:ellipsis; }
 .nf-match { color:#46d369; font-weight:800; }
 .nf-genres { padding: 0 11px 10px; color:#8c8c8c; font-size:.72rem; white-space:nowrap; overflow:hidden;
              text-overflow:ellipsis; }
@@ -181,7 +182,7 @@ def card_html(row, rank: int | None = None, show_score: bool = True) -> str:
           f" linear-gradient(160deg, hsl({(h + 40) % 360},55%,18%), #050505)")
     match = ""
     if show_score and "score" in row and pd.notna(row["score"]):
-        match = f'<span class="nf-match">{round(float(row["score"]) * 100)}% match</span> · '
+        match = f'<div class="nf-match">{round(float(row["score"]) * 100)}% match</div>'
     genres = html.escape(str(row["genres"]).replace(LIST_SEP, " • "))
     num = f'<div class="n">#{rank}</div>' if rank else ""
     badge = "SERIES" if row["type"] == "TV Show" else "FILM"

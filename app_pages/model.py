@@ -23,7 +23,8 @@ with c1:
     fig.update_traces(marker_color="#E50914", texttemplate="%{text:.2f}", textposition="outside",
                       cliponaxis=False)
     fig.update_layout(yaxis=dict(autorange="reversed"), xaxis_title=None, yaxis_title=None,
-                      xaxis_showticklabels=False, xaxis_showgrid=False, height=300)
+                      xaxis_showticklabels=False, xaxis_showgrid=False, height=300,
+                      xaxis_range=[0, w["Weight"].max() * 1.2])
     st.plotly_chart(fig, width="stretch")
 with c2:
     vocab = {n: len(v.vocabulary_) for n, v in rec.vectorizers.items()}
@@ -58,7 +59,8 @@ if ev is not None:
     fig.update_traces(marker_color=["#5c5c5c", "#5c5c5c", "#5c5c5c", "#E50914", "#E50914"],
                       texttemplate="%{text:.1%}", textposition="outside", cliponaxis=False)
     fig.update_layout(yaxis=dict(autorange="reversed"), xaxis_title=None, yaxis_title=None,
-                      xaxis_showticklabels=False, xaxis_showgrid=False, height=320)
+                      xaxis_showticklabels=False, xaxis_showgrid=False, height=320,
+                      xaxis_range=[0, ev[sel].max() * 1.2])
     st.plotly_chart(fig, width="stretch")
     h = ev.set_index("Method")
     hy, go_, do = h.loc["Hybrid weighted (ours)"], h.loc["Genre-only"], h.loc["Description-only (TF-IDF)"]
@@ -85,7 +87,7 @@ if cl is not None and "tsne_x" in df:
         fig = px.scatter(plot, x="tsne_x", y="tsne_y", color="cluster_name", hover_name="title",
                          hover_data={"type": True, "release_year": True, "tsne_x": False,
                                      "tsne_y": False, "cluster_name": False},
-                         color_discrete_sequence=px.colors.qualitative.Dark24, height=620)
+                         color_discrete_sequence=px.colors.qualitative.Light24, height=620)
         fig.update_traces(marker_size=4, marker_opacity=0.75)
         # direct labels at centroids so identity never relies on colour alone
         for name, grp in plot.groupby("cluster_name"):
@@ -101,7 +103,7 @@ if cl is not None and "tsne_x" in df:
                          height=620)
         fig.update_traces(marker_size=5)
     fig.update_layout(xaxis_visible=False, yaxis_visible=False, legend_title=None,
-                      legend=dict(orientation="v", x=1.01, y=1))
+                      legend=dict(orientation="v", x=1.01, xanchor="left", y=1, yanchor="top"))
     st.plotly_chart(fig, width="stretch")
     st.dataframe(cl.drop(columns=["silhouette"]).style.format({"pct_movies": "{:.0%}"}),
                  hide_index=True, width="stretch")

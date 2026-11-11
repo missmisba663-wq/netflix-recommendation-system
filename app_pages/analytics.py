@@ -32,9 +32,10 @@ c = st.columns(6)
 kpi(c[0], f"{len(v):,}", "Titles")
 kpi(c[1], f"{(v['type'] == 'Movie').mean():.0%}", "Movies share")
 kpi(c[2], f"{v['duration_min'].mean():.0f} min" if v["duration_min"].notna().any() else "–", "Avg movie length")
-kpi(c[3], f"{v['seasons'].mean():.1f}" if v["seasons"].notna().any() else "–", "Avg seasons / show")
+kpi(c[3], f"{v['seasons'].mean():.1f}" if v["seasons"].notna().any() else "–", "Avg seasons")
 kpi(c[4], f"{v['countries'].str.split('|').explode().replace('', None).nunique()}", "Countries")
-kpi(c[5], f"{v['years_to_netflix'].median():.0f} yrs", "Median release→Netflix lag")
+lag = int(v["years_to_netflix"].median())
+kpi(c[5], f"{lag} yr{'s' if lag != 1 else ''}", "Median lag to Netflix")
 st.write("")
 
 def explode(col):
@@ -68,7 +69,8 @@ with a:
     gg = explode("genres")["_x"].value_counts().head(12).sort_values()
     fig = px.bar(x=gg.values, y=gg.index, orientation="h", title="Top 12 genres", text=gg.values)
     fig.update_traces(marker_color=RED, textposition="outside", cliponaxis=False)
-    fig.update_layout(xaxis_title=None, yaxis_title=None, xaxis_showgrid=False, xaxis_showticklabels=False)
+    fig.update_layout(xaxis_title=None, yaxis_title=None, xaxis_showgrid=False, xaxis_showticklabels=False,
+                      xaxis_range=[0, gg.max() * 1.15])
     st.plotly_chart(fig, width="stretch")
 with b:
     cc = explode("countries")["_x"].value_counts().reset_index()
@@ -111,19 +113,22 @@ with a:
     d = explode("directors")["_x"].value_counts().head(10).sort_values()
     fig = px.bar(x=d.values, y=d.index, orientation="h", title="Most frequent directors", text=d.values)
     fig.update_traces(marker_color=RED, textposition="outside", cliponaxis=False)
-    fig.update_layout(xaxis_title=None, yaxis_title=None, xaxis_showticklabels=False, xaxis_showgrid=False)
+    fig.update_layout(xaxis_title=None, yaxis_title=None, xaxis_showticklabels=False, xaxis_showgrid=False,
+                      xaxis_range=[0, d.max() * 1.18])
     st.plotly_chart(fig, width="stretch")
 with b:
     ac = explode("cast_list")["_x"].value_counts().head(10).sort_values()
     fig = px.bar(x=ac.values, y=ac.index, orientation="h", title="Most frequent actors", text=ac.values)
     fig.update_traces(marker_color=RED, textposition="outside", cliponaxis=False)
-    fig.update_layout(xaxis_title=None, yaxis_title=None, xaxis_showticklabels=False, xaxis_showgrid=False)
+    fig.update_layout(xaxis_title=None, yaxis_title=None, xaxis_showticklabels=False, xaxis_showgrid=False,
+                      xaxis_range=[0, ac.max() * 1.18])
     st.plotly_chart(fig, width="stretch")
 with c3:
     mg = v["maturity_group"].value_counts().reindex(["Kids", "Older Kids", "Teens", "Adults", "Unrated"]).dropna()
     fig = px.bar(x=mg.index, y=mg.values, title="Target audience", text=mg.values)
     fig.update_traces(marker_color=RED, textposition="outside", cliponaxis=False)
-    fig.update_layout(xaxis_title=None, yaxis_title=None, yaxis_showticklabels=False, yaxis_showgrid=False)
+    fig.update_layout(xaxis_title=None, yaxis_title=None, yaxis_showticklabels=False, yaxis_showgrid=False,
+                      yaxis_range=[0, mg.max() * 1.15])
     st.plotly_chart(fig, width="stretch")
 
 # --------------------------------------------------------------- decades
