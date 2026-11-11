@@ -1,0 +1,13 @@
+cluster,cluster_name,size,pct_movies,median_year,top_genres,top_terms,silhouette
+0,TV Comedies / Reality TV,1163,0.06792777300085985,2018,"International TV Shows, TV Comedies, Romantic TV Shows, Reality TV","series, life, world, new, young, love, school, family",0.3268263339996338
+1,Independent / Dramas,683,1.0,2017,"Independent Movies, Dramas, International Movies, Comedies","young, man, new, life, family, woman, father, old",0.3268263339996338
+2,Children & Family / Comedies,623,1.0,2017,"Children & Family Movies, Comedies, Dramas, Music & Musicals","save, friends, new, christmas, young, bheem, family, help",0.3268263339996338
+3,Documentaries / Sports,851,1.0,2017,"Documentaries, International Movies, Music & Musicals, Sports Movies","documentary, life, world, film, documentary follows, follows, interviews, explores",0.3268263339996338
+4,Action & Adventure / Sci-Fi & Fantasy,817,1.0,2015,"Action & Adventure, International Movies, Dramas, Comedies","mission, agent, man, young, war, group, cop, revenge",0.3268263339996338
+5,Stand-Up Comedy,343,1.0,2017,"Stand-Up Comedy, Music & Musicals, Documentaries","stand, comedian, special, comic, comedy, stand special, stage, takes",0.3268263339996338
+6,Kids' TV / TV Comedies,450,0.0,2018,"Kids' TV, TV Comedies, British TV Shows, Anime Series","friends, adventures, world, fun, series, evil, adventure, new",0.3268263339996338
+7,TV Dramas / Crime TV,747,0.0,2018,"TV Dramas, International TV Shows, Crime TV Shows, Romantic TV Shows","life, family, love, new, school, woman, high, young",0.3268263339996338
+8,Romantic / Comedies,1041,1.0,2016,"Comedies, International Movies, Romantic Movies, Dramas","love, woman, man, young, life, new, friends, family",0.3268263339996338
+9,Docuseries / Science & Nature TV,395,0.0,2018,"Docuseries, International TV Shows, Crime TV Shows, British TV Shows","series, docuseries, world, documentary series, documentary, history, stories, explores",0.3268263339996338
+10,Dramas / Comedies,1021,1.0,2016,"Dramas, International Movies, Comedies, Music & Musicals","young, family, man, woman, life, father, love, mother",0.3268263339996338
+11,Thrillers / Horror,672,1.0,2017,"Thrillers, International Movies, Horror Movies, Dramas","young, woman, killer, murder, home, man, mysterious, new",0.3268263339996338
